@@ -263,13 +263,3 @@ For each phase:
 4. Run tests.
 5. Commit with a clear message.
 6. Update this plan.
-
-## Next Step
-
-Start with Phase 0:
-
-- initialize git
-- add `.gitignore`
-- add `README.md`
-- commit the brief and this plan
-- create and push to GitHub
