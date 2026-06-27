@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Gradle
+.gradle/
+build/
+
+# Kotlin
+*.class
+
+# Logs
+*.log
+
+# Local environment
+.env
+.env.*
