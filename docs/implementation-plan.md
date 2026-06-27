@@ -24,7 +24,7 @@ Goal: create a clean project history before writing application code.
 - [x] Commit existing project brief and planning docs
 - [x] Create GitHub repository
 - [x] Configure GitHub `origin` remote
-- [ ] Push local `main` branch to GitHub
+- [x] Push local `main` branch to GitHub
 
 Suggested first commit:
 
