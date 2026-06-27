@@ -5,7 +5,7 @@ This project will be built gradually as a learning project. The goal is to keep 
 ## Current Status
 
 - [x] Git repository initialized
-- [ ] GitHub repository created
+- [x] GitHub repository created
 - [ ] Kotlin/Gradle project skeleton created
 - [ ] Core domain model implemented
 - [ ] Limit order book implemented
@@ -22,7 +22,8 @@ Goal: create a clean project history before writing application code.
 - [x] Add Kotlin/Gradle/IntelliJ `.gitignore`
 - [x] Add starter `README.md`
 - [x] Commit existing project brief and planning docs
-- [ ] Create GitHub repository
+- [x] Create GitHub repository
+- [x] Configure GitHub `origin` remote
 - [ ] Push local `main` branch to GitHub
 
 Suggested first commit:
