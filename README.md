@@ -20,9 +20,9 @@ The project is not intended to trade real money or predict prices. It is focused
 
 ## Current Stage
 
-Phase 1: Kotlin project skeleton.
+Phase 2: core domain model.
 
-The project now has a minimal Kotlin/JVM Gradle setup with a runnable entry point and a first passing test.
+The project now has a minimal Kotlin/JVM Gradle setup plus validated domain value objects, order models, command models, event models, and focused tests.
 
 ## Running Locally
 
