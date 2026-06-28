@@ -6,7 +6,7 @@ This project will be built gradually as a learning project. The goal is to keep 
 
 - [x] Git repository initialized
 - [x] GitHub repository created
-- [ ] Kotlin/Gradle project skeleton created
+- [x] Kotlin/Gradle project skeleton created
 - [ ] Core domain model implemented
 - [ ] Limit order book implemented
 - [ ] Matching engine implemented
@@ -36,14 +36,14 @@ Initial project brief and implementation plan
 
 Goal: create a minimal runnable Kotlin/JVM project with tests.
 
-- [ ] Add Gradle wrapper
-- [ ] Add `settings.gradle.kts`
-- [ ] Add `build.gradle.kts`
-- [ ] Configure Kotlin/JVM
-- [ ] Configure test framework
-- [ ] Add simple `main()` entry point
-- [ ] Add first passing test
-- [ ] Run tests locally
+- [x] Add Gradle wrapper
+- [x] Add `settings.gradle.kts`
+- [x] Add `build.gradle.kts`
+- [x] Configure Kotlin/JVM
+- [x] Configure test framework
+- [x] Add simple `main()` entry point
+- [x] Add first passing test
+- [x] Run tests locally
 
 Learning focus:
 

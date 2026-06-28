@@ -20,6 +20,13 @@ The project is not intended to trade real money or predict prices. It is focused
 
 ## Current Stage
 
-Phase 0: Git and GitHub setup.
+Phase 1: Kotlin project skeleton.
 
-The Kotlin project skeleton will be added in Phase 1.
+The project now has a minimal Kotlin/JVM Gradle setup with a runnable entry point and a first passing test.
+
+## Running Locally
+
+```bash
+./gradlew run
+./gradlew test
+```
