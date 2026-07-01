@@ -7,7 +7,7 @@ This project will be built gradually as a learning project. The goal is to keep 
 - [x] Git repository initialized
 - [x] GitHub repository created
 - [x] Kotlin/Gradle project skeleton created
-- [ ] Core domain model implemented
+- [x] Core domain model implemented
 - [ ] Limit order book implemented
 - [ ] Matching engine implemented
 - [ ] Tests added for core behavior
@@ -55,30 +55,30 @@ Learning focus:
 
 Goal: define the language of the trading system before implementing behavior.
 
-- [ ] Define `Symbol`
-- [ ] Define `OrderId`
-- [ ] Define `Side`
-- [ ] Define `Price`
-- [ ] Define `Quantity`
-- [ ] Define order types: limit and market
-- [ ] Define command types
-- [ ] Define event types
+- [x] Define `Symbol`
+- [x] Define `OrderId`
+- [x] Define `Side`
+- [x] Define `Price`
+- [x] Define `Quantity`
+- [x] Define order types: limit and market
+- [x] Define command types
+- [x] Define event types
 
 Possible commands:
 
-- [ ] `PlaceLimitOrder`
-- [ ] `PlaceMarketOrder`
-- [ ] `CancelOrder`
-- [ ] `AmendOrder`
+- [x] `PlaceLimitOrder`
+- [x] `PlaceMarketOrder`
+- [x] `CancelOrder`
+- [x] `AmendOrder`
 
 Possible events:
 
-- [ ] `OrderAccepted`
-- [ ] `OrderRejected`
-- [ ] `TradeExecuted`
-- [ ] `OrderRested`
-- [ ] `OrderCancelled`
-- [ ] `OrderAmended`
+- [x] `OrderAccepted`
+- [x] `OrderRejected`
+- [x] `TradeExecuted`
+- [x] `OrderRested`
+- [x] `OrderCancelled`
+- [x] `OrderAmended`
 
 Learning focus:
 
