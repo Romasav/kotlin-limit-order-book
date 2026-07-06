@@ -20,9 +20,9 @@ The project is not intended to trade real money or predict prices. It is focused
 
 ## Current Stage
 
-Phase 2: core domain model.
+Phase 3 complete: single-symbol limit order book.
 
-The project now has a minimal Kotlin/JVM Gradle setup plus validated domain value objects, order models, command models, event models, and focused tests.
+The project now has a minimal Kotlin/JVM Gradle setup, validated domain value objects and commands/events, plus a single-symbol limit order book with price-time priority and focused tests.
 
 ## Running Locally
 
