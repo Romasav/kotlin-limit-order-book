@@ -8,9 +8,9 @@ This project will be built gradually as a learning project. The goal is to keep 
 - [x] GitHub repository created
 - [x] Kotlin/Gradle project skeleton created
 - [x] Core domain model implemented
-- [ ] Limit order book implemented
+- [x] Limit order book implemented
 - [ ] Matching engine implemented
-- [ ] Tests added for core behavior
+- [x] Tests added for core behavior
 - [ ] CLI/replay runner added
 - [ ] Simulator and benchmark tooling added
 
@@ -91,15 +91,15 @@ Learning focus:
 
 Goal: maintain resting buy and sell limit orders for one symbol.
 
-- [ ] Store bids highest price first
-- [ ] Store asks lowest price first
-- [ ] Preserve FIFO order at the same price
-- [ ] Add resting limit orders
-- [ ] Query best bid
-- [ ] Query best ask
-- [ ] Produce book snapshot
-- [ ] Test price priority
-- [ ] Test time priority
+- [x] Store bids highest price first
+- [x] Store asks lowest price first
+- [x] Preserve FIFO order at the same price
+- [x] Add resting limit orders
+- [x] Query best bid
+- [x] Query best ask
+- [x] Produce book snapshot
+- [x] Test price priority
+- [x] Test time priority
 
 Learning focus:
 
@@ -252,8 +252,10 @@ Suggested branch pattern:
 phase-0-git-setup
 phase-1-kotlin-skeleton
 phase-2-domain-model
-phase-3-order-book
+phase-3-limit-order-book
 ```
+
+Do not add an agent or tool prefix to phase branch names.
 
 For each phase:
 

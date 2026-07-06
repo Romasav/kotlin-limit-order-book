@@ -70,3 +70,4 @@ Use this when the user asks Codex to create a pull request and merge it into `ma
 - Git metadata commands such as `git fetch`, `git switch`, and `git pull` may need escalation because they write under `.git`.
 - If `gh auth status` says the local token is invalid, `gh` may still work when run with the approved network path; try the requested operation before asking the user to re-authenticate.
 - Use `--match-head-commit` when merging so GitHub refuses the merge if the PR branch moved unexpectedly.
+- Use phase branch names from `docs/implementation-plan.md`, such as `phase-3-limit-order-book`, without an agent or tool prefix.
