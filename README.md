@@ -20,9 +20,9 @@ The project is not intended to trade real money or predict prices. It is focused
 
 ## Current Stage
 
-Phase 3 complete: single-symbol limit order book.
+Phase 4 complete: limit order matching.
 
-The project now has a minimal Kotlin/JVM Gradle setup, validated domain value objects and commands/events, plus a single-symbol limit order book with price-time priority and focused tests.
+The project now has a minimal Kotlin/JVM Gradle setup, validated domain value objects and commands/events, plus a single-symbol limit order book that preserves price-time priority, matches compatible limit orders, emits deterministic trade events, and rests any unfilled limit quantity.
 
 ## Running Locally
 

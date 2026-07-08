@@ -2,10 +2,12 @@ package com.kavun.orderbook.book
 
 import com.kavun.orderbook.domain.LimitOrder
 import com.kavun.orderbook.domain.OrderId
+import com.kavun.orderbook.domain.OrderRested
 import com.kavun.orderbook.domain.Price
 import com.kavun.orderbook.domain.Quantity
 import com.kavun.orderbook.domain.Side
 import com.kavun.orderbook.domain.Symbol
+import com.kavun.orderbook.domain.TradeExecuted
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -131,6 +133,161 @@ class LimitOrderBookTest {
         assertFailsWith<IllegalArgumentException> {
             book.addRestingOrder(otherSymbolOrder)
         }
+    }
+
+    @Test
+    fun `incoming buy limit order matches best ask`() {
+        val book = LimitOrderBook(acme)
+        val restingAsk = limitOrder("sell-1", Side.SELL, price = 100, quantity = 6)
+        val incomingBuy = limitOrder("buy-1", Side.BUY, price = 101, quantity = 6)
+
+        book.addRestingOrder(restingAsk)
+
+        assertEquals(
+            listOf(
+                TradeExecuted(
+                    symbol = acme,
+                    price = Price(100),
+                    quantity = Quantity(6),
+                    buyOrderId = incomingBuy.orderId,
+                    sellOrderId = restingAsk.orderId,
+                ),
+            ),
+            book.placeLimitOrder(incomingBuy),
+        )
+        assertNull(book.bestBid())
+        assertNull(book.bestAsk())
+    }
+
+    @Test
+    fun `incoming sell limit order matches best bid`() {
+        val book = LimitOrderBook(acme)
+        val restingBid = limitOrder("buy-1", Side.BUY, price = 102, quantity = 4)
+        val incomingSell = limitOrder("sell-1", Side.SELL, price = 101, quantity = 4)
+
+        book.addRestingOrder(restingBid)
+
+        assertEquals(
+            listOf(
+                TradeExecuted(
+                    symbol = acme,
+                    price = Price(102),
+                    quantity = Quantity(4),
+                    buyOrderId = restingBid.orderId,
+                    sellOrderId = incomingSell.orderId,
+                ),
+            ),
+            book.placeLimitOrder(incomingSell),
+        )
+        assertNull(book.bestBid())
+        assertNull(book.bestAsk())
+    }
+
+    @Test
+    fun `incoming non crossing limit order rests without trades`() {
+        val book = LimitOrderBook(acme)
+        val restingAsk = limitOrder("sell-1", Side.SELL, price = 105, quantity = 3)
+        val incomingBuy = limitOrder("buy-1", Side.BUY, price = 104, quantity = 7)
+
+        book.addRestingOrder(restingAsk)
+
+        assertEquals(
+            listOf(OrderRested(incomingBuy)),
+            book.placeLimitOrder(incomingBuy),
+        )
+        assertEquals(incomingBuy, book.bestBid())
+        assertEquals(restingAsk, book.bestAsk())
+    }
+
+    @Test
+    fun `partial fill reduces resting order quantity`() {
+        val book = LimitOrderBook(acme)
+        val restingAsk = limitOrder("sell-1", Side.SELL, price = 100, quantity = 10)
+        val incomingBuy = limitOrder("buy-1", Side.BUY, price = 100, quantity = 4)
+
+        book.addRestingOrder(restingAsk)
+
+        assertEquals(
+            listOf(
+                TradeExecuted(
+                    symbol = acme,
+                    price = Price(100),
+                    quantity = Quantity(4),
+                    buyOrderId = incomingBuy.orderId,
+                    sellOrderId = restingAsk.orderId,
+                ),
+            ),
+            book.placeLimitOrder(incomingBuy),
+        )
+        assertEquals(restingAsk.copy(quantity = Quantity(6)), book.bestAsk())
+        assertNull(book.bestBid())
+    }
+
+    @Test
+    fun `unfilled incoming limit quantity rests after matching`() {
+        val book = LimitOrderBook(acme)
+        val restingAsk = limitOrder("sell-1", Side.SELL, price = 100, quantity = 4)
+        val incomingBuy = limitOrder("buy-1", Side.BUY, price = 101, quantity = 10)
+        val remainingBuy = incomingBuy.copy(quantity = Quantity(6))
+
+        book.addRestingOrder(restingAsk)
+
+        assertEquals(
+            listOf(
+                TradeExecuted(
+                    symbol = acme,
+                    price = Price(100),
+                    quantity = Quantity(4),
+                    buyOrderId = incomingBuy.orderId,
+                    sellOrderId = restingAsk.orderId,
+                ),
+                OrderRested(remainingBuy),
+            ),
+            book.placeLimitOrder(incomingBuy),
+        )
+        assertEquals(remainingBuy, book.bestBid())
+        assertNull(book.bestAsk())
+    }
+
+    @Test
+    fun `one incoming order can fill multiple resting orders in price time priority`() {
+        val book = LimitOrderBook(acme)
+        val firstAsk = limitOrder("sell-1", Side.SELL, price = 100, quantity = 5)
+        val secondAsk = limitOrder("sell-2", Side.SELL, price = 101, quantity = 7)
+        val tooExpensiveAsk = limitOrder("sell-3", Side.SELL, price = 102, quantity = 3)
+        val incomingBuy = limitOrder("buy-1", Side.BUY, price = 101, quantity = 10)
+
+        book.addRestingOrder(secondAsk)
+        book.addRestingOrder(tooExpensiveAsk)
+        book.addRestingOrder(firstAsk)
+
+        assertEquals(
+            listOf(
+                TradeExecuted(
+                    symbol = acme,
+                    price = Price(100),
+                    quantity = Quantity(5),
+                    buyOrderId = incomingBuy.orderId,
+                    sellOrderId = firstAsk.orderId,
+                ),
+                TradeExecuted(
+                    symbol = acme,
+                    price = Price(101),
+                    quantity = Quantity(5),
+                    buyOrderId = incomingBuy.orderId,
+                    sellOrderId = secondAsk.orderId,
+                ),
+            ),
+            book.placeLimitOrder(incomingBuy),
+        )
+        assertEquals(
+            listOf(
+                PriceLevel(price = Price(101), orders = listOf(secondAsk.copy(quantity = Quantity(2)))),
+                PriceLevel(price = Price(102), orders = listOf(tooExpensiveAsk)),
+            ),
+            book.snapshot().asks,
+        )
+        assertNull(book.bestBid())
     }
 
     private fun limitOrder(
