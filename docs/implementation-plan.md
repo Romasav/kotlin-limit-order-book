@@ -9,7 +9,8 @@ This project will be built gradually as a learning project. The goal is to keep 
 - [x] Kotlin/Gradle project skeleton created
 - [x] Core domain model implemented
 - [x] Limit order book implemented
-- [ ] Matching engine implemented
+- [x] Limit order matching implemented
+- [ ] Matching engine API implemented
 - [x] Tests added for core behavior
 - [ ] CLI/replay runner added
 - [ ] Simulator and benchmark tooling added
@@ -111,16 +112,16 @@ Learning focus:
 
 Goal: match compatible limit orders and emit deterministic trade events.
 
-- [ ] Match incoming buy orders against best asks
-- [ ] Match incoming sell orders against best bids
-- [ ] Support full fills
-- [ ] Support partial fills
-- [ ] Rest unfilled limit quantity
-- [ ] Remove filled resting orders
-- [ ] Emit `TradeExecuted` events
-- [ ] Test crossing orders
-- [ ] Test partial fills
-- [ ] Test multiple fills from one incoming order
+- [x] Match incoming buy orders against best asks
+- [x] Match incoming sell orders against best bids
+- [x] Support full fills
+- [x] Support partial fills
+- [x] Rest unfilled limit quantity
+- [x] Remove filled resting orders
+- [x] Emit `TradeExecuted` events
+- [x] Test crossing orders
+- [x] Test partial fills
+- [x] Test multiple fills from one incoming order
 
 Learning focus:
 
@@ -253,6 +254,7 @@ phase-0-git-setup
 phase-1-kotlin-skeleton
 phase-2-domain-model
 phase-3-limit-order-book
+phase-4-limit-order-matching
 ```
 
 Do not add an agent or tool prefix to phase branch names.
