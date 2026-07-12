@@ -1,11 +1,12 @@
 package com.kavun.orderbook.domain
 
 sealed interface Command {
+    val orderId: OrderId
     val symbol: Symbol
 }
 
 data class PlaceLimitOrder(
-    val orderId: OrderId,
+    override val orderId: OrderId,
     override val symbol: Symbol,
     val side: Side,
     val quantity: Quantity,
@@ -21,7 +22,7 @@ data class PlaceLimitOrder(
 }
 
 data class PlaceMarketOrder(
-    val orderId: OrderId,
+    override val orderId: OrderId,
     override val symbol: Symbol,
     val side: Side,
     val quantity: Quantity,
@@ -35,12 +36,12 @@ data class PlaceMarketOrder(
 }
 
 data class CancelOrder(
-    val orderId: OrderId,
+    override val orderId: OrderId,
     override val symbol: Symbol,
 ) : Command
 
 data class AmendOrder(
-    val orderId: OrderId,
+    override val orderId: OrderId,
     override val symbol: Symbol,
     val newQuantity: Quantity? = null,
     val newPrice: Price? = null,
