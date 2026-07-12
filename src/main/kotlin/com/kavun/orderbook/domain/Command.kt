@@ -4,13 +4,17 @@ sealed interface Command {
     val symbol: Symbol
 }
 
+sealed interface OrderCommand : Command {
+    val orderId: OrderId
+}
+
 data class PlaceLimitOrder(
-    val orderId: OrderId,
+    override val orderId: OrderId,
     override val symbol: Symbol,
     val side: Side,
     val quantity: Quantity,
     val price: Price,
-) : Command {
+) : OrderCommand {
     fun toOrder(): LimitOrder = LimitOrder(
         orderId = orderId,
         symbol = symbol,
@@ -21,11 +25,11 @@ data class PlaceLimitOrder(
 }
 
 data class PlaceMarketOrder(
-    val orderId: OrderId,
+    override val orderId: OrderId,
     override val symbol: Symbol,
     val side: Side,
     val quantity: Quantity,
-) : Command {
+) : OrderCommand {
     fun toOrder(): MarketOrder = MarketOrder(
         orderId = orderId,
         symbol = symbol,
@@ -35,16 +39,16 @@ data class PlaceMarketOrder(
 }
 
 data class CancelOrder(
-    val orderId: OrderId,
+    override val orderId: OrderId,
     override val symbol: Symbol,
-) : Command
+) : OrderCommand
 
 data class AmendOrder(
-    val orderId: OrderId,
+    override val orderId: OrderId,
     override val symbol: Symbol,
     val newQuantity: Quantity? = null,
     val newPrice: Price? = null,
-) : Command {
+) : OrderCommand {
     init {
         require(newQuantity != null || newPrice != null) {
             "AmendOrder must include a new quantity, a new price, or both"

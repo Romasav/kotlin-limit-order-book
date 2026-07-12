@@ -10,7 +10,7 @@ This project will be built gradually as a learning project. The goal is to keep 
 - [x] Core domain model implemented
 - [x] Limit order book implemented
 - [x] Limit order matching implemented
-- [ ] Matching engine API implemented
+- [x] Matching engine API implemented
 - [x] Tests added for core behavior
 - [ ] CLI/replay runner added
 - [ ] Simulator and benchmark tooling added
@@ -133,12 +133,12 @@ Learning focus:
 
 Goal: wrap the book with a clean command-processing API.
 
-- [ ] Create `MatchingEngine`
-- [ ] Accept commands as input
-- [ ] Return events as output
-- [ ] Keep behavior deterministic
-- [ ] Reject invalid commands
-- [ ] Add tests around command-to-event behavior
+- [x] Create `MatchingEngine`
+- [x] Accept commands as input
+- [x] Return events as output
+- [x] Keep behavior deterministic
+- [x] Reject invalid commands
+- [x] Add tests around command-to-event behavior
 
 Learning focus:
 
@@ -255,6 +255,7 @@ phase-1-kotlin-skeleton
 phase-2-domain-model
 phase-3-limit-order-book
 phase-4-limit-order-matching
+phase-5-engine-api
 ```
 
 Do not add an agent or tool prefix to phase branch names.
