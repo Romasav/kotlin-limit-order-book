@@ -2,6 +2,11 @@ package com.kavun.orderbook.book
 
 import com.kavun.orderbook.domain.Event
 import com.kavun.orderbook.domain.LimitOrder
+import com.kavun.orderbook.domain.MarketOrder
+import com.kavun.orderbook.domain.Order
+import com.kavun.orderbook.domain.OrderAmended
+import com.kavun.orderbook.domain.OrderCancelled
+import com.kavun.orderbook.domain.OrderId
 import com.kavun.orderbook.domain.OrderRested
 import com.kavun.orderbook.domain.Price
 import com.kavun.orderbook.domain.Quantity
@@ -18,53 +23,62 @@ class LimitOrderBook(
     private val asks = sortedMapOf<Price, ArrayDeque<LimitOrder>>()
 
     fun placeLimitOrder(order: LimitOrder): List<Event> {
-        require(order.symbol == symbol) {
-            "Cannot place order for ${order.symbol} in book for $symbol"
-        }
+        val result = match(order) { restingPrice -> order.crosses(restingPrice) }
 
-        var remainingQuantity = order.quantity.value
-        val events = mutableListOf<Event>()
-        val oppositeSide = when (order.side) {
-            Side.BUY -> asks
-            Side.SELL -> bids
-        }
-
-        while (remainingQuantity > 0) {
-            val bestPrice = oppositeSide.firstPriceOrNull() ?: break
-            if (!order.crosses(bestPrice)) break
-
-            val restingOrders = oppositeSide.getValue(bestPrice)
-            val restingOrder = restingOrders.first()
-            val tradedQuantity = min(remainingQuantity, restingOrder.quantity.value)
-
-            events += order.tradeEvent(restingOrder, Quantity(tradedQuantity))
-            remainingQuantity -= tradedQuantity
-
-            val restingQuantity = restingOrder.quantity.value - tradedQuantity
-            if (restingQuantity == 0L) {
-                restingOrders.removeFirst()
-                if (restingOrders.isEmpty()) {
-                    oppositeSide.remove(bestPrice)
-                }
-            } else {
-                restingOrders.removeFirst()
-                restingOrders.addFirst(restingOrder.copy(quantity = Quantity(restingQuantity)))
-            }
-        }
-
-        if (remainingQuantity > 0) {
-            val restingOrder = order.copy(quantity = Quantity(remainingQuantity))
+        if (result.remainingQuantity > 0) {
+            val restingOrder = order.copy(quantity = Quantity(result.remainingQuantity))
             addRestingOrder(restingOrder)
-            events += OrderRested(restingOrder)
+            result.events += OrderRested(restingOrder)
         }
 
-        return events
+        return result.events
+    }
+
+    fun placeMarketOrder(order: MarketOrder): List<Event> {
+        val result = match(order) { true }
+
+        if (result.remainingQuantity > 0) {
+            val cancelledRemainder = order.copy(quantity = Quantity(result.remainingQuantity))
+            result.events += OrderCancelled(cancelledRemainder)
+        }
+
+        return result.events
+    }
+
+    fun cancelOrder(orderId: OrderId): OrderCancelled? {
+        val location = findRestingOrder(orderId) ?: return null
+        return OrderCancelled(removeRestingOrder(location))
+    }
+
+    fun amendOrder(
+        orderId: OrderId,
+        newQuantity: Quantity?,
+        newPrice: Price?,
+    ): List<Event>? {
+        require(newQuantity != null || newPrice != null) {
+            "An amendment must include a new quantity, a new price, or both"
+        }
+
+        val location = findRestingOrder(orderId) ?: return null
+        val currentOrder = location.order
+        val amendedOrder = currentOrder.copy(
+            quantity = newQuantity ?: currentOrder.quantity,
+            price = newPrice ?: currentOrder.price,
+        )
+        val keepsPriority = amendedOrder.price == currentOrder.price &&
+            amendedOrder.quantity <= currentOrder.quantity
+
+        if (keepsPriority) {
+            location.orders[location.index] = amendedOrder
+            return listOf(OrderAmended(amendedOrder))
+        }
+
+        removeRestingOrder(location)
+        return listOf(OrderAmended(amendedOrder)) + placeLimitOrder(amendedOrder)
     }
 
     fun addRestingOrder(order: LimitOrder) {
-        require(order.symbol == symbol) {
-            "Cannot add order for ${order.symbol} to book for $symbol"
-        }
+        requireBookSymbol(order)
 
         val side = when (order.side) {
             Side.BUY -> bids
@@ -83,6 +97,73 @@ class LimitOrderBook(
         bids = bids.toPriceLevels(),
         asks = asks.toPriceLevels(),
     )
+
+    private fun match(
+        order: Order,
+        canTradeAt: (Price) -> Boolean,
+    ): MatchResult {
+        requireBookSymbol(order)
+
+        var remainingQuantity = order.quantity.value
+        val events = mutableListOf<Event>()
+        val oppositeSide = when (order.side) {
+            Side.BUY -> asks
+            Side.SELL -> bids
+        }
+
+        while (remainingQuantity > 0) {
+            val bestPrice = oppositeSide.firstPriceOrNull() ?: break
+            if (!canTradeAt(bestPrice)) break
+
+            val restingOrders = oppositeSide.getValue(bestPrice)
+            val restingOrder = restingOrders.first()
+            val tradedQuantity = min(remainingQuantity, restingOrder.quantity.value)
+
+            events += order.tradeEvent(restingOrder, Quantity(tradedQuantity))
+            remainingQuantity -= tradedQuantity
+
+            val restingQuantity = restingOrder.quantity.value - tradedQuantity
+            if (restingQuantity == 0L) {
+                restingOrders.removeFirst()
+                if (restingOrders.isEmpty()) {
+                    oppositeSide.remove(bestPrice)
+                }
+            } else {
+                restingOrders[0] = restingOrder.copy(quantity = Quantity(restingQuantity))
+            }
+        }
+
+        return MatchResult(events, remainingQuantity)
+    }
+
+    private fun findRestingOrder(orderId: OrderId): RestingOrderLocation? =
+        bids.findRestingOrder(orderId) ?: asks.findRestingOrder(orderId)
+
+    private fun SortedMap<Price, ArrayDeque<LimitOrder>>.findRestingOrder(
+        orderId: OrderId,
+    ): RestingOrderLocation? {
+        for ((price, orders) in this) {
+            val index = orders.indexOfFirst { it.orderId == orderId }
+            if (index >= 0) {
+                return RestingOrderLocation(this, price, orders, index)
+            }
+        }
+        return null
+    }
+
+    private fun removeRestingOrder(location: RestingOrderLocation): LimitOrder {
+        val removedOrder = location.orders.removeAt(location.index)
+        if (location.orders.isEmpty()) {
+            location.side.remove(location.price)
+        }
+        return removedOrder
+    }
+
+    private fun requireBookSymbol(order: Order) {
+        require(order.symbol == symbol) {
+            "Cannot process order for ${order.symbol} in book for $symbol"
+        }
+    }
 
     private fun SortedMap<Price, ArrayDeque<LimitOrder>>.bestOrder(): LimitOrder? =
         if (isEmpty()) null else get(firstKey())?.firstOrNull()
@@ -104,7 +185,7 @@ class LimitOrderBook(
             Side.SELL -> price <= restingPrice
         }
 
-    private fun LimitOrder.tradeEvent(
+    private fun Order.tradeEvent(
         restingOrder: LimitOrder,
         quantity: Quantity,
     ): TradeExecuted =
@@ -124,6 +205,20 @@ class LimitOrderBook(
                 sellOrderId = orderId,
             )
         }
+
+    private data class MatchResult(
+        val events: MutableList<Event>,
+        val remainingQuantity: Long,
+    )
+
+    private data class RestingOrderLocation(
+        val side: SortedMap<Price, ArrayDeque<LimitOrder>>,
+        val price: Price,
+        val orders: ArrayDeque<LimitOrder>,
+        val index: Int,
+    ) {
+        val order: LimitOrder = orders[index]
+    }
 }
 
 data class BookSnapshot(

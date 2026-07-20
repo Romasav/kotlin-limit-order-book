@@ -34,19 +34,40 @@ class MatchingEngine(
 
         return when (command) {
             is PlaceLimitOrder -> processLimitOrder(command)
-            is PlaceMarketOrder -> reject(command, "Market orders are not supported yet")
-            is CancelOrder -> reject(command, "Cancel orders are not supported yet")
-            is AmendOrder -> reject(command, "Amend orders are not supported yet")
+            is PlaceMarketOrder -> processMarketOrder(command)
+            is CancelOrder -> processCancelOrder(command)
+            is AmendOrder -> processAmendOrder(command)
         }
     }
 
     private fun processLimitOrder(command: PlaceLimitOrder): List<Event> {
-        if (!acceptedOrderIds.add(command.orderId)) {
-            return reject(command, "Order id ${command.orderId} has already been used")
-        }
+        rejectDuplicateOrderId(command)?.let { return it }
 
         val order = command.toOrder()
         return listOf(OrderAccepted(order)) + book.placeLimitOrder(order)
+    }
+
+    private fun processMarketOrder(command: PlaceMarketOrder): List<Event> {
+        rejectDuplicateOrderId(command)?.let { return it }
+
+        val order = command.toOrder()
+        return listOf(OrderAccepted(order)) + book.placeMarketOrder(order)
+    }
+
+    private fun processCancelOrder(command: CancelOrder): List<Event> {
+        val cancellation = book.cancelOrder(command.orderId)
+            ?: return reject(command, "Order id ${command.orderId} is not open")
+
+        return listOf(cancellation)
+    }
+
+    private fun processAmendOrder(command: AmendOrder): List<Event> =
+        book.amendOrder(command.orderId, command.newQuantity, command.newPrice)
+            ?: reject(command, "Order id ${command.orderId} is not open")
+
+    private fun rejectDuplicateOrderId(command: OrderCommand): List<Event>? {
+        if (acceptedOrderIds.add(command.orderId)) return null
+        return reject(command, "Order id ${command.orderId} has already been used")
     }
 
     private fun reject(command: OrderCommand, reason: String): List<Event> =
