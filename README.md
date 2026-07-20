@@ -20,9 +20,9 @@ The project is not intended to trade real money or predict prices. It is focused
 
 ## Current Stage
 
-Phase 5 complete: matching engine API and event flow.
+Phase 6 complete: market orders, cancellation, and amendment.
 
-The project now has a minimal Kotlin/JVM Gradle setup, validated domain value objects and commands/events, plus a single-symbol matching engine. It validates commands, prevents duplicate order ids, preserves price-time priority, emits deterministic acceptance, trade, resting, and rejection events, and exposes the final book state as a snapshot.
+The single-symbol matching engine now supports limit and market buy/sell orders, cancellation, and amendment. Market orders consume all available opposite-side liquidity and emit a cancellation event for any unfilled quantity instead of resting it. Quantity reductions at the same price retain time priority, while quantity increases and price changes re-enter the book with new time priority. Commands emit deterministic acceptance, trade, resting, cancellation, amendment, and rejection events, and the final book state is available as a snapshot.
 
 ## Running Locally
 

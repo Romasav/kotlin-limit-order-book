@@ -29,7 +29,7 @@ data class OrderRested(
 ) : Event
 
 data class OrderCancelled(
-    val cancelledOrder: LimitOrder,
+    val cancelledOrder: Order,
 ) : Event
 
 data class OrderAmended(

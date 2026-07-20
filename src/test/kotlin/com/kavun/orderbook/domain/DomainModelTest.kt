@@ -87,6 +87,13 @@ class DomainModelTest {
         assertEquals(OrderAccepted(restingOrder), OrderAccepted(restingOrder))
         assertEquals(OrderRested(restingOrder), OrderRested(restingOrder))
         assertEquals(OrderCancelled(restingOrder), OrderCancelled(restingOrder))
+        val marketRemainder = MarketOrder(
+            orderId = sellOrderId,
+            symbol = acme,
+            side = Side.SELL,
+            quantity = Quantity(2),
+        )
+        assertEquals(OrderCancelled(marketRemainder), OrderCancelled(marketRemainder))
         assertEquals(
             OrderAmended(restingOrder.copy(quantity = Quantity(8))),
             OrderAmended(restingOrder.copy(quantity = Quantity(8))),

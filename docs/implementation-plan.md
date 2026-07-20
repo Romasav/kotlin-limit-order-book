@@ -11,6 +11,7 @@ This project will be built gradually as a learning project. The goal is to keep 
 - [x] Limit order book implemented
 - [x] Limit order matching implemented
 - [x] Matching engine API implemented
+- [x] Market orders, cancellation, and amendment implemented
 - [x] Tests added for core behavior
 - [ ] CLI/replay runner added
 - [ ] Simulator and benchmark tooling added
@@ -150,16 +151,17 @@ Learning focus:
 
 Goal: complete the basic exchange feature set.
 
-- [ ] Implement market buy orders
-- [ ] Implement market sell orders
-- [ ] Implement order cancellation
-- [ ] Implement simple order amendment
-- [ ] Reject cancel for unknown order
-- [ ] Reject amend for unknown order
-- [ ] Test market order partial fill
-- [ ] Test market order with insufficient liquidity
-- [ ] Test cancellation removes order from book
-- [ ] Test amendment updates priority correctly
+- [x] Implement market buy orders
+- [x] Implement market sell orders
+- [x] Implement order cancellation
+- [x] Implement simple order amendment
+- [x] Reject cancel for unknown order
+- [x] Reject amend for unknown order
+- [x] Test market order partial fill
+- [x] Test market order with insufficient liquidity
+- [x] Emit cancellation event for unfilled market quantity
+- [x] Test cancellation removes order from book
+- [x] Test amendment updates priority correctly
 
 Learning focus:
 
@@ -256,6 +258,7 @@ phase-2-domain-model
 phase-3-limit-order-book
 phase-4-limit-order-matching
 phase-5-engine-api
+phase-6-market-cancel-amend
 ```
 
 Do not add an agent or tool prefix to phase branch names.
